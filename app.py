@@ -18,7 +18,7 @@ Vectorizer = TfidfVectorizer()
 vectorize_text = Vectorizer.fit_transform(train_data.v2)
 Classifier.fit(vectorize_text, train_data.v1)
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET','POST'])
 def index():
     message = request.args.get('message', '')
     error = ''
@@ -34,10 +34,15 @@ def index():
             predict_probability = Classifier.predict_proba(vectorize_message).toList()
     except BaseException as inst:
         error = str(type(inst).__name__) + ' '+str(inst)
-    return jsonify(
-        message= message, predict_proba= predict_probability,
-        predict= predict, error= error
-    )
+    # return jsonify(
+    #     message= message, predict_proba= predict_probability,
+    #     predict= predict, error= error
+    # )
+    jsonObj = {
+        'message': message, 'predict_proba': predict_probability,
+        'predict': predict.capitalize(), 'error': error
+    }
+    return render_template('index.html', jsonObj= jsonObj)
 
 if(__name__=='__main__'):
     port = int(os.environ.get('PORT', 5000))
